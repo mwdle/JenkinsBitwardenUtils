@@ -181,3 +181,6 @@ KEY3=value3
 
 3. **Set environment variables**:
    - Configure `BITWARDEN_SERVER_URL` in your Jenkins agent configuration
+
+4. **Install required plugins**:
+   - Pipeline Utility Steps plugin (for `readJSON` function)
