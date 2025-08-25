@@ -18,11 +18,11 @@ def call(Map config, Closure body) {
             def credentialJson = sh(
                 script: '''
                     set +x
-                    bw config server "$BITWARDEN_SERVER_URL"
-                    bw login --apikey
+                    bw config server "$BITWARDEN_SERVER_URL" >&2
+                    bw login --apikey >&2
                     SESSION_TOKEN=$(bw unlock --raw --passwordenv BITWARDEN_MASTER_PASSWORD)
                     bw get item "''' + config.itemName + '''" --session "$SESSION_TOKEN"
-                    bw logout
+                    bw logout >&2
                 ''',
                 returnStdout: true
             ).trim()
