@@ -18,18 +18,18 @@ def call(Map config, Closure body) {
             def credentialJson = sh(
                 script: '''
                     set +x # Don't echo commands in logs
-                    bw config server "$BITWARDEN_SERVER_URL" &> /dev/null
+                    bw config server "$BITWARDEN_SERVER_URL" >&2
                     bw login --apikey >&2
                     SESSION_TOKEN=$(bw unlock --raw --passwordenv BITWARDEN_MASTER_PASSWORD)
                     bw get item "''' + config.itemName + '''" --session "$SESSION_TOKEN"
-                    bw logout >&2
+                    bw logout >&2 # Always logout after fetching credentials
                 ''',
                 returnStdout: true
             ).trim()
             def credential = readJSON text: credentialJson
             body(credential)
         } finally {
-            sh 'bw logout || true'
+            sh 'bw logout || true' // Always logout even after failure
         }
     }
 }
