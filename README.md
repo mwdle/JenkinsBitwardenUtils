@@ -30,7 +30,7 @@ A Jenkins shared library for securely retrieving secrets from Bitwarden in Jenki
 ### Basic Usage
 
 ```groovy
-@Library('JenkinsBitwardenUtils') _
+@Library('JenkinsBitwardenUtils') _ // Must be added to Jenkins shared library configurations -- See https://www.jenkins.io/doc/book/pipeline/shared-libraries/
 
 pipeline {
     agent any
@@ -71,7 +71,7 @@ pipeline {
 For the common use case of loading environment variables from Bitwarden secure notes:
 
 ```groovy
-@Library('JenkinsBitwardenUtils') _
+@Library('JenkinsBitwardenUtils') _ // Must be added to Jenkins shared library configurations -- See https://www.jenkins.io/doc/book/pipeline/shared-libraries/
 
 pipeline {
     agent any
@@ -180,6 +180,7 @@ KEY3=value3
    - Alternatively, manage and configure it via JCasC
 
 3. **Set environment variables**:
+
    - Configure `BITWARDEN_SERVER_URL` in your Jenkins agent configuration
 
 4. **Install required plugins**:
