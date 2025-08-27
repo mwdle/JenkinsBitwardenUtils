@@ -14,6 +14,7 @@ def call(Map config, Closure body) {
         string(credentialsId: masterPasswordCredentialId, 
                variable: 'BITWARDEN_MASTER_PASSWORD')
     ]) {
+        // Always use single quotes to avoid Groovy string interpolation (prevents secret leakage)
         try {
             def credentialJson = sh(
                 script: '''
