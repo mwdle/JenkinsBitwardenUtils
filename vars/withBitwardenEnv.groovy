@@ -7,7 +7,7 @@ def call(Map config, Closure body) {
             def props = new Properties()
             props.load(new StringReader(credential.notes))
             props.each { key, value ->
-                envList.add("${key}=${value}")
+                envList.add(key + "=" + value)
             }
         }
         
