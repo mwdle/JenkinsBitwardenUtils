@@ -14,20 +14,22 @@ def call(Map config, Closure body) {
         string(credentialsId: masterPasswordCredentialId, 
                variable: 'BITWARDEN_MASTER_PASSWORD')
     ]) {
-        // Always use single quotes to avoid Groovy string interpolation (prevents secret leakage)
         try {
-            def credentialJson = sh(
-                script: '''
-                    set +x # Don't echo commands in logs
-                    bw config server "$BITWARDEN_SERVER_URL" >&2
-                    bw login --apikey >&2
-                    SESSION_TOKEN=$(bw unlock --raw --passwordenv BITWARDEN_MASTER_PASSWORD)
-                    bw get item "$ITEM_NAME" --session "$SESSION_TOKEN"
-                ''',
-                returnStdout: true,
-                environment: [ITEM_NAME: config.itemName]
-            ).trim()
-            def credential = readJSON text: credentialJson
+            def credential
+            withEnv(["ITEM_NAME=${config.itemName}"]) {
+                def credentialJson = sh(
+                    // Always use single quotes to avoid Groovy string interpolation (prevents secret leakage)
+                    script: '''
+                        set +x # Don't echo commands in logs
+                        bw config server "$BITWARDEN_SERVER_URL" >&2
+                        bw login --apikey >&2
+                        SESSION_TOKEN=$(bw unlock --raw --passwordenv BITWARDEN_MASTER_PASSWORD)
+                        bw get item "$ITEM_NAME" --session "$SESSION_TOKEN"
+                    ''',
+                    returnStdout: true
+                ).trim()
+                credential = readJSON text: credentialJson
+            }
             body(credential)
         } finally {
             sh 'bw logout || true' // Always logout even after failure
