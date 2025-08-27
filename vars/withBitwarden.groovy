@@ -22,10 +22,10 @@ def call(Map config, Closure body) {
                     bw config server "$BITWARDEN_SERVER_URL" >&2
                     bw login --apikey >&2
                     SESSION_TOKEN=$(bw unlock --raw --passwordenv BITWARDEN_MASTER_PASSWORD)
-                    bw get item "''' + config.itemName + '''" --session "$SESSION_TOKEN"
-                    bw logout >&2 # Always logout after fetching credentials
+                    bw get item "$ITEM_NAME" --session "$SESSION_TOKEN"
                 ''',
-                returnStdout: true
+                returnStdout: true,
+                environment: [ITEM_NAME: config.itemName]
             ).trim()
             def credential = readJSON text: credentialJson
             body(credential)
