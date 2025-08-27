@@ -16,22 +16,16 @@ def call(Map config, Closure body) {
     ]) {
         // Always use single quotes to avoid Groovy string interpolation (prevents secret leakage)
         try {
-            sh '''
-                set +x # Don't echo commands in logs
-                bw config server "$BITWARDEN_SERVER_URL"
-                bw login --apikey
-            '''
-            def session = sh(
-                script: 'bw unlock --raw --passwordenv BITWARDEN_MASTER_PASSWORD',
-                returnStdout: true
-            ).trim()
             def credentialJson = sh(
-                script: 'bw get item "$ITEM_NAME" --session "$SESSION_TOKEN"',
-                returnStdout: true,
-                environment: [
-                    ITEM_NAME: config.itemName,
-                    SESSION_TOKEN: session,
-                ]
+                script: '''
+                    set +x # Don't echo commands in logs
+                    bw config server "$BITWARDEN_SERVER_URL" >&2
+                    bw login --apikey >&2
+                    SESSION_TOKEN=$(bw unlock --raw --passwordenv BITWARDEN_MASTER_PASSWORD)
+                    bw get item "''' + config.itemName + '''" --session "$SESSION_TOKEN"
+                    bw logout >&2 # Always logout after fetching credentials
+                ''',
+                returnStdout: true
             ).trim()
             def credential = readJSON text: credentialJson
             body(credential)
