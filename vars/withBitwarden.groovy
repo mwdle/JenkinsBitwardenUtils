@@ -18,7 +18,7 @@ def call(Map config, Closure body) {
                     // Always use single quotes to avoid Groovy string interpolation in shell commands (help prevents secret leakage)
                     script: '''
                         set +x # Don't echo commands in logs
-                        set +e # Exit immediately if any command returns a non-zero status
+                        set -e # Exit immediately if any command returns a non-zero status
                         bw config server "$BITWARDEN_SERVER_URL" >&2
                         bw login --apikey >&2
                         SESSION_TOKEN=$(bw unlock --raw --passwordenv BITWARDEN_MASTER_PASSWORD)
