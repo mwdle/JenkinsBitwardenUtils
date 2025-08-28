@@ -23,12 +23,7 @@ def call(Map config, Closure body) {
                         bw config server "$BITWARDEN_SERVER_URL" >&2
                         bw login --apikey >&2
                         SESSION_TOKEN=$(bw unlock --raw --passwordenv BITWARDEN_MASTER_PASSWORD)
-                        ENV_SECRETS=$(bw get item "$ITEM_NAME" --session "$SESSION_TOKEN")
-                        if [ -z "$ENV_SECRETS" ]; then
-                            echo "ERROR: Bitwarden item '$ITEM_NAME' not found or empty" >&2
-                            exit 1
-                        fi
-                        echo "$ENV_SECRETS"
+                        bw get item "$ITEM_NAME" --session "$SESSION_TOKEN"
                     ''',
                     returnStdout: true
                 ).trim()
