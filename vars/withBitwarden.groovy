@@ -28,6 +28,7 @@ def call(Map config, Closure body) {
                             echo "ERROR: Bitwarden item '$ITEM_NAME' not found or empty" >&2
                             exit 1
                         fi
+                        echo "$ENV_SECRETS"
                     ''',
                     returnStdout: true
                 ).trim()
