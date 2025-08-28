@@ -8,17 +8,14 @@ def call(Map config, Closure body) {
     def apiKeyCredentialId = config.apiKeyCredentialId ?: 'bitwarden-api-key'
     def masterPasswordCredentialId = config.masterPasswordCredentialId ?: 'bitwarden-master-password'
     withCredentials([
-        usernamePassword(credentialsId: apiKeyCredentialId, 
-                       usernameVariable: 'BW_CLIENTID', 
-                       passwordVariable: 'BW_CLIENTSECRET'),
-        string(credentialsId: masterPasswordCredentialId, 
-               variable: 'BITWARDEN_MASTER_PASSWORD')
+        usernamePassword(credentialsId: apiKeyCredentialId, usernameVariable: 'BW_CLIENTID', passwordVariable: 'BW_CLIENTSECRET'),
+        string(credentialsId: masterPasswordCredentialId, variable: 'BITWARDEN_MASTER_PASSWORD')
     ]) {
         try {
             def credential
             withEnv(["ITEM_NAME=${config.itemName}"]) {
                 def credentialJson = sh(
-                    // Always use single quotes to avoid Groovy string interpolation (prevents secret leakage)
+                    // Always use single quotes to avoid Groovy string interpolation in shell commands (prevents secret leakage)
                     script: '''
                         set +x # Don't echo commands in logs
                         bw config server "$BITWARDEN_SERVER_URL" >&2
