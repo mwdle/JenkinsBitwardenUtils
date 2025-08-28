@@ -15,7 +15,7 @@ def call(Map config, Closure body) {
             def credential
             withEnv(["ITEM_NAME=${config.itemName}"]) {
                 def credentialJson = sh(
-                    // Always use single quotes to avoid Groovy string interpolation in shell commands (prevents secret leakage)
+                    // Always use single quotes to avoid Groovy string interpolation in shell commands (help prevents secret leakage)
                     script: '''
                         set +x # Don't echo commands in logs
                         bw config server "$BITWARDEN_SERVER_URL" >&2
