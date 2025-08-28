@@ -1,7 +1,7 @@
 def call(Map config, Closure body) {
     // Call the main withBitwarden function and automatically parse environment variables
     withBitwarden(config) { credential ->
-        // Parse environment variables (Docker .env) from secure note -- See https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/
+        // Parse environment variables (Docker .env) from secure note -- Mimics behavior outlined in https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/
         def envList = []
         if (credential.notes) {
             credential.notes.split('\n').each { line ->
