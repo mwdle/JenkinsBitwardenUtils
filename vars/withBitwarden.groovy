@@ -16,18 +16,22 @@ def call(Map config, Closure body) {
             withEnv(["ITEM_NAME=${config.itemName}"]) {
                 def credentialJson = sh(
                     // Always use single quotes to avoid Groovy string interpolation in shell commands (help prevents secret leakage)
+                    // Redirects output from most commands to avoid polluting the captured secret JSON
                     script: '''
                         set +x # Don't echo commands in logs
                         set -e # Exit immediately if any command returns a non-zero status
                         bw config server "$BITWARDEN_SERVER_URL" >&2
                         bw login --apikey >&2
                         SESSION_TOKEN=$(bw unlock --raw --passwordenv BITWARDEN_MASTER_PASSWORD)
-                        bw get item "$ITEM_NAME" --session "$SESSION_TOKEN"
+                        ENV_SECRETS=$(bw get item "$ITEM_NAME" --session "$SESSION_TOKEN")
+                        if [ -z "$ENV_SECRETS" ]; then
+                            echo "ERROR: Bitwarden item '$ITEM_NAME' not found or empty" >&2
+                            exit 1
+                        fi
                     ''',
                     returnStdout: true
                 ).trim()
                 credential = readJSON text: credentialJson
-                if (!credential) error("Error: The requested Bitwarden credential is empty or does not exist.")
             }
             body(credential)
         } finally {
