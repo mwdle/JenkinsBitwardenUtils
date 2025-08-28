@@ -26,8 +26,8 @@ def call(Map config, Closure body) {
                     ''',
                     returnStdout: true
                 ).trim()
-                if (!credential) error("Error: The requested Bitwarden credential is empty or does not exist.")
                 credential = readJSON text: credentialJson
+                if (!credential) error("Error: The requested Bitwarden credential is empty or does not exist.")
             }
             body(credential)
         } finally {
