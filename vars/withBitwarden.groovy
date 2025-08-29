@@ -27,6 +27,7 @@ def call(Map config, Closure body) {
                     ''',
                     returnStdout: true
                 ).trim()
+                if (!credentialJson) error("Error: The requested Bitwarden credential was not found!")
                 credential = readJSON text: credentialJson
             }
             body(credential)
