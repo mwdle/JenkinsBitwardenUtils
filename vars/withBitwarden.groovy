@@ -23,8 +23,9 @@ def call(Map config, Closure body) {
                 ).trim()
             // Provides the secrets to the shell command using environment variables and no groovy interpolation to maximize security
             withEnv(["ITEM_NAME=${config.itemName}", "SESSION_TOKEN=${sessionToken}"]) {
+                echo "+ bw get item '${config.itemName}' --session [REDACTED]" // Echo a redacted version of the command for log clarity.
                 credential = readJSON text: sh(
-                    script: 'bw get item $ITEM_NAME --session $SESSION_TOKEN',
+                    script: 'set +x; bw get item $ITEM_NAME --session $SESSION_TOKEN', // set +x ensures that `$SESSION_TOKEN` is not printed to the build log
                     returnStdout: true
                 ).trim()
             }
