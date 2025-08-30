@@ -30,7 +30,7 @@ def call(Map config, Closure body) {
             // }
 
             withEnv(["ITEM_NAME=${config.itemName}"]) {
-                credential = readJSON text: sh(
+                def credentialJson = sh(
                     // Redirects output from most commands to avoid polluting the captured secret JSON
                     script: '''
                         set +x # Don't echo commands in logs
@@ -41,6 +41,7 @@ def call(Map config, Closure body) {
                     ''',
                     returnStdout: true
                 ).trim()
+                credential = readJSON text: credentialJson
             }
         } finally {
             sh 'bw logout || true' // Always logout even after failure
