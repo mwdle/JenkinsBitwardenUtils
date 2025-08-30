@@ -14,14 +14,6 @@ def call(Map config, Closure body) {
         string(credentialsId: masterPasswordCredentialId, variable: 'BITWARDEN_MASTER_PASSWORD')
     ]) {
         try {
-            // DEBUGGING: Print the variables to the log. REMOVE AFTER USE.
-            sh '''
-                echo "--- DEBUGGING BITWARDEN CREDS ---"
-                echo "BW_CLIENTID is: $BW_CLIENTID"
-                echo "BW_CLIENTSECRET is set: [${BW_CLIENTSECRET:+true}]" // Check if it's set without printing the secret
-                echo "A few characters of the secret: ${BW_CLIENTSECRET:0:4}..." // Safest way to confirm it's not empty
-                echo "---------------------------------"
-            '''
             if (bitwardenServerUrl)
                 sh "bw config server ${bitwardenServerUrl}"
             sh 'bw login --apikey'
