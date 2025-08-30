@@ -5,7 +5,7 @@ def call(Map config, Closure body) {
     if (!config.itemName) {
         error 'withBitwarden: itemName parameter is required'
     }
-    def bitwardenServerUrl = config.bitwardenServerUrl
+    def bitwardenServerUrl = config.bitwardenServerUrl ?: env.BITWARDEN_SERVER_URL
     def apiKeyCredentialId = config.apiKeyCredentialId ?: 'bitwarden-api-key'
     def masterPasswordCredentialId = config.masterPasswordCredentialId ?: 'bitwarden-master-password'
     def credential
