@@ -4,7 +4,7 @@ def call(Map config, Closure body) {
     withBitwarden(config) { credential ->
         def envList = []
         if (credential.notes) {
-            credential.notes.eachLine { line ->
+            credential.notes.split('\n').each { line ->
                 def envVar = parseEnvLine(line)
                 if (envVar) {
                     envList.add(envVar)
