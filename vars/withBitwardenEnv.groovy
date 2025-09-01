@@ -23,7 +23,7 @@ def call(Map config, Closure body) {
 /**
  * Parses a single line of a .env file.
  * Returns a formatted "KEY=VALUE" string or null if the line is invalid/empty.
- * Gracefully strips inline comments in a manner that is similar to typical Docker .env file parsing
+ * Gracefully strips single and double quotations as well as inline comments in a manner that is similar to typical Docker .env file parsing
  */
 private String parseEnvLine(String line) {
     def trimmedLine = line.trim()
@@ -45,8 +45,8 @@ private String parseEnvLine(String line) {
             // If no closing quote was found, use the whole string as the value
             if (endIndex == -1) {
                 value = rawValue
-            } else { // Set value to the quoted string - stripping inline comments
-                value = rawValue.substring(0, endIndex + 1)
+            } else { // Set value to the quoted content - stripping the quotation marks and inline comments (if any)
+                value = rawValue.substring(1, endIndex)
             }
         } else { // Not quoted - strip inline comments
             value = rawValue.split(' #', 2)[0].trim()
