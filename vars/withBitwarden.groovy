@@ -1,11 +1,12 @@
 // Retrieves a Bitwarden item and executes closure with the credential object
 // Requires: itemName parameter
 // Optional: bitwardenServerUrl (defaults to Bitwarden CLI default), apiKeyCredentialId (default: 'bitwarden-api-key'), masterPasswordCredentialId (default: 'bitwarden-master-password')
+// bitwardenServerUrl can also be set via the BITWARDEN_SERVER_URL environment variable. The parameter value takes predence over the environment variable.
 def call(Map config, Closure body) {
     if (!config.itemName) {
         error 'withBitwarden: itemName parameter is required'
     }
-    def bitwardenServerUrl = config.bitwardenServerUrl ?: env.BITWARDEN_SERVER_URL // Defaults to null if neither the parameter nor environment variable are provided
+    def bitwardenServerUrl = config.bitwardenServerUrl ?: env.BITWARDEN_SERVER_URL
     def apiKeyCredentialId = config.apiKeyCredentialId ?: 'bitwarden-api-key'
     def masterPasswordCredentialId = config.masterPasswordCredentialId ?: 'bitwarden-master-password'
     def credential
@@ -21,10 +22,10 @@ def call(Map config, Closure body) {
                     script: 'bw unlock --raw --passwordenv BITWARDEN_MASTER_PASSWORD',
                     returnStdout: true
                 ).trim()
-            // Provides the secrets to the shell command using environment variables and no groovy interpolation to maximize security
             withEnv(["ITEM_NAME=${config.itemName}", "SESSION_TOKEN=${sessionToken}"]) {
                 echo "+ Fetching secret: '${config.itemName}'"
                 credential = readJSON text: sh(
+                    // Secrets provided to shell command using environment variables without groovy interpolation to avoid leaking
                     script: 'set +x; bw get item $ITEM_NAME --session $SESSION_TOKEN', // set +x ensures that `$SESSION_TOKEN` is not printed to the build log
                     returnStdout: true
                 ).trim()
