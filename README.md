@@ -23,7 +23,7 @@ A Jenkins shared library for securely retrieving secrets from Bitwarden in Jenki
 
    - `BITWARDEN_SERVER_URL`: Your Bitwarden server URL
 
-3. **Agent Requirements**: Jenkins agents must have certain software installed, see [Dockerfile.agent](https://github.com/mwdle/JenkinsConfig/blob/master/Dockerfile.agent) as an example
+3. **Agent Requirements**: Jenkins agents must have certain software installed, see [mwdle/jenkins-agent](https://github.com/mwdle/jenkins-agent/blob/master/Dockerfile) as an example
 
 ## Usage
 
