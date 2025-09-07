@@ -39,7 +39,7 @@ def call(Map config, Closure body) {
             withEnv(["SESSION_TOKEN=${sessionToken}"]) {
                 config.itemNames.each { itemName ->
                     echo "+ Fetching secret: '${itemName}'"
-                    credential = readJSON text: sh(
+                    def credential = readJSON text: sh(
                         // SESSION_TOKEN is provided to shell command using environment variables and no groovy interpolation to avoid leakage
                         script: "set +x; bw get item '${itemName}' --session \$SESSION_TOKEN", // set +x ensures that `$SESSION_TOKEN` is not printed to the build log
                         returnStdout: true
