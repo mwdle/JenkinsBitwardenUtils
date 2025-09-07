@@ -1,15 +1,29 @@
-// Retrieves a Bitwarden item and executes closure with the credential object
-// Requires: itemName parameter
-// Optional: bitwardenServerUrl (defaults to Bitwarden CLI default), apiKeyCredentialId (default: 'bitwarden-api-key'), masterPasswordCredentialId (default: 'bitwarden-master-password')
-// bitwardenServerUrl can also be set via the BITWARDEN_SERVER_URL environment variable. The parameter value takes predence over the environment variable.
+/**
+ * Retrieves one or more Bitwarden items and executes a closure with the results.
+ *
+ * @param itemNames **(Required)** A `List` of Bitwarden item names to fetch.
+
+ * @param bitwardenServerUrl *(Optional)* URL for the Bitwarden server.
+ * Defaults to the CLI config or the `BITWARDEN_SERVER_URL` env variable.
+
+ * @param apiKeyCredentialId *(Optional)* Jenkins credential ID for the API key.
+ * Defaults to `'bitwarden-api-key'`.
+
+ * @param masterPasswordCredentialId *(Optional)* Jenkins credential ID for the master password
+ * Defaults to `'bitwarden-master-password'`.
+
+ * @param body A closure to execute that receives a map of `[itemName: credential]` results.
+ */
 def call(Map config, Closure body) {
-    if (!config.itemName) {
-        error 'withBitwarden: itemName parameter is required'
+    if (!config.itemNames) {
+        error 'withBitwarden: itemNames parameter (a List) is required'
     }
+
     def bitwardenServerUrl = config.bitwardenServerUrl ?: env.BITWARDEN_SERVER_URL
     def apiKeyCredentialId = config.apiKeyCredentialId ?: 'bitwarden-api-key'
     def masterPasswordCredentialId = config.masterPasswordCredentialId ?: 'bitwarden-master-password'
-    def credential
+    
+    def credentialsMap = [:]
     withCredentials([
         usernamePassword(credentialsId: apiKeyCredentialId, usernameVariable: 'BW_CLIENTID', passwordVariable: 'BW_CLIENTSECRET'),
         string(credentialsId: masterPasswordCredentialId, variable: 'BITWARDEN_MASTER_PASSWORD')
@@ -22,18 +36,21 @@ def call(Map config, Closure body) {
                     script: 'bw unlock --raw --passwordenv BITWARDEN_MASTER_PASSWORD',
                     returnStdout: true
                 ).trim()
-            withEnv(["ITEM_NAME=${config.itemName}", "SESSION_TOKEN=${sessionToken}"]) {
-                echo "+ Fetching secret: '${config.itemName}'"
-                credential = readJSON text: sh(
-                    // Secrets provided to shell command using environment variables without groovy interpolation to avoid leaking
-                    script: 'set +x; bw get item $ITEM_NAME --session $SESSION_TOKEN', // set +x ensures that `$SESSION_TOKEN` is not printed to the build log
-                    returnStdout: true
-                ).trim()
+            withEnv(["SESSION_TOKEN=${sessionToken}"]) {
+                config.itemNames.each { itemName ->
+                    echo "+ Fetching secret: '${itemName}'"
+                    credential = readJSON text: sh(
+                        // SESSION_TOKEN is provided to shell command using environment variables and no groovy interpolation to avoid leakage
+                        script: "set +x; bw get item '${itemName}' --session \$SESSION_TOKEN", // set +x ensures that `$SESSION_TOKEN` is not printed to the build log
+                        returnStdout: true
+                    ).trim()
+                    credentialsMap[itemName] = credential
+                }
             }
         } finally {
             sh 'bw logout || true' // Always logout even after failure
         }
     }
     // Closure does not execute within the `withCredentials` block for security reasons
-    body(credential)
+    body(credentialsMap)
 }
