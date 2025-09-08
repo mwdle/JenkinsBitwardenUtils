@@ -30,7 +30,7 @@ def call(Map config, Closure body) {
     ]) {
         try {
             if (bitwardenServerUrl)
-                sh "bw config server ${bitwardenServerUrl}"
+                sh "bw config server '${bitwardenServerUrl}'"
             sh 'bw login --apikey'
             def sessionToken = sh(
                     script: 'bw unlock --raw --passwordenv BITWARDEN_MASTER_PASSWORD',
