@@ -1,5 +1,9 @@
 /**
  * Retrieves one or more Bitwarden items and executes a closure with the results.
+
+ * Note on Responsibility: This function securely fetches and provides secret data.
+ * It is the caller's responsibility to ensure this data is handled securely within
+ * the provided closure and not exposed to build logs or other insecure outputs.
  *
  * @param itemNames **(Required)** A `List` of Bitwarden item names to fetch.
 
